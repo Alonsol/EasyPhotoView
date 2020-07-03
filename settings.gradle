@@ -1,0 +1,3 @@
+rootProject.name='EasyPhotoView'
+include ':app'
+include ':macrophotolib'
