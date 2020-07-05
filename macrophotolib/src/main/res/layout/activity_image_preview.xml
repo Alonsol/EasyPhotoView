@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ImagePreviewActivity"
-    android:background="#000000">
+    android:id="@+id/root"
+    android:background="#00000000">
     <com.yy.macrophotolib.view.DragViewLayout
         android:id="@+id/dragView"
         android:layout_width="match_parent"

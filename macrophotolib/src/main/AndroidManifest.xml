@@ -9,7 +9,7 @@
 
     <application>
         <activity android:name=".ImagePreviewActivity"
-            android:theme="@style/pwdTransparent"></activity>
+            android:theme="@style/translucent"></activity>
     </application>
 
 </manifest>

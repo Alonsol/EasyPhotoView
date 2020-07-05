@@ -1,7 +1,5 @@
 package com.yy.macrophotolib.view
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.Context
@@ -65,7 +63,6 @@ class DragViewLayout @JvmOverloads constructor(
                     if (overLimit || abs(yvel) > 8000) {
                         if (listener != null) {
                             listener!!.onDragFinished()
-//                            startFinishAnim()
                         }
                         overLimit = false
                     } else {
@@ -94,10 +91,10 @@ class DragViewLayout @JvmOverloads constructor(
             ) {
                 val a = top.toFloat() / measuredHeight.toFloat()
                 var scale = 1 - 2 * abs(a)
-                if (scale <=0){
+                if (scale <= 0) {
                     scale = 0f
                 }
-                (parent as ConstraintLayout).setBackgroundColor(changeAlpha(-0x1000000,scale ))
+                (parent as ConstraintLayout).setBackgroundColor(changeAlpha(-0x1000000, scale))
                 if (abs(top) <= measuredHeight / 4) {
                     scale = 1 - abs(a)
                     dragViewPager.scaleX = scale
@@ -112,7 +109,7 @@ class DragViewLayout @JvmOverloads constructor(
 
 
     fun startFinishAnim() {
-        Log.e("test","alpha ->$scale")
+        Log.e("test", "alpha ->$scale")
         val publishAlphaAnim = ObjectAnimator.ofFloat(this, "alpha", scale, 0f)
         val animatorSet = AnimatorSet()
         animatorSet.duration = 300

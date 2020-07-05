@@ -31,7 +31,10 @@
     <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
     </style>
-
+    <style name="translucent" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground" >@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
 
     <style name="pwdTransparent">
         <item name="android:windowBackground">#00000000</item>
@@ -42,10 +45,10 @@
     </style>
 
     <style name="notAnimation">
-        <item name="android:activityOpenEnterAnimation">@anim/anim_fade_in</item>
-        <item name="android:activityOpenExitAnimation">@anim/anim_fade_out</item>
-        <item name="android:activityCloseEnterAnimation">@anim/anim_fade_in</item>
-        <item name="android:activityCloseExitAnimation">@anim/anim_fade_in</item>
+        <item name="android:activityOpenEnterAnimation">@null</item>
+        <item name="android:activityOpenExitAnimation">@null</item>
+        <item name="android:activityCloseEnterAnimation">@null</item>
+        <item name="android:activityCloseExitAnimation">@null</item>
         <item name="android:taskOpenEnterAnimation">@null</item>
         <item name="android:taskOpenExitAnimation">@null</item>
         <item name="android:taskCloseEnterAnimation">@null</item>

@@ -8,17 +8,18 @@ import androidx.viewpager.widget.PagerAdapter
 import com.yy.macrophotolib.ImageInfo
 import com.yy.macrophotolib.view.EasyImageHolder
 
-class ImagePagerAdapter(private val context: Context, private val mData: List<ImageInfo>) :
-    PagerAdapter() {
+class ImagePagerAdapter(private val context: Context, private val mData: List<ImageInfo>) : PagerAdapter() {
     private val itemViewSparseArray: SparseArray<EasyImageHolder> = SparseArray()
+     var currentView:EasyImageHolder?=null
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         var photoView: EasyImageHolder? = itemViewSparseArray.get(position)
         if (photoView == null) {
             photoView = EasyImageHolder(context)
-            photoView.loadFile(mData[position].remoteUrl)
+            photoView.loadFile(mData[position].remoteUrl,null,0)
             itemViewSparseArray.put(position, photoView)
         }
+        currentView = photoView
         container.addView(photoView)
         return photoView
     }
