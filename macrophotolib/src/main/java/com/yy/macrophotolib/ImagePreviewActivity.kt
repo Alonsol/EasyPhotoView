@@ -78,7 +78,7 @@ class ImagePreviewActivity : AppCompatActivity() {
             startWidth = entity.getWidth();
             startHeight = entity.getHeight()
 
-            Log.e("haha","startX->$startX startY->$startY  startWidth->$startWidth  startHeight->$startHeight")
+            Log.e("TEST","startX->$startX startY->$startY  startWidth->$startWidth  startHeight->$startHeight")
         }
 
         mAdapter = ImagePagerAdapter(this, DataUtils.getUrls())
@@ -129,7 +129,7 @@ class ImagePreviewActivity : AppCompatActivity() {
                 xDelta = (startX - screenLocation[0]) * 1f
                 yDelta = (startY - screenLocation[1]) * 1f
                 //计算缩放比例
-                Log.e("haha","xDelta =${xDelta}  yDelta = ${yDelta}")
+                Log.e("TEST","xDelta =${xDelta}  yDelta = ${yDelta}")
                 mWidthScale = startWidth.toFloat() / dragView.getWidth()
                 mHeightScale = startHeight.toFloat() / dragView.getHeight()
                 enterAnimation(Runnable {
@@ -164,7 +164,7 @@ class ImagePreviewActivity : AppCompatActivity() {
         dragView.setTranslationX(xDelta)
         dragView.setTranslationY(yDelta)
 
-        Log.e("haha"," enterAnimation  mWidthScale->$mWidthScale   mHeightScale->$mHeightScale  xDelta->$xDelta  yDelta->$yDelta")
+        Log.e("TEST"," enterAnimation  mWidthScale->$mWidthScale   mHeightScale->$mHeightScale  xDelta->$xDelta  yDelta->$yDelta")
         val sDecelerator: TimeInterpolator = DecelerateInterpolator()
         dragView.animate().setDuration(DURATION).scaleX(1F)
                 .scaleY(1F).translationX(0F).translationY(0F).setInterpolator(sDecelerator).withEndAction(enterAction)
@@ -181,7 +181,7 @@ class ImagePreviewActivity : AppCompatActivity() {
 //        dragView.setScaleY(1f)
 //        dragView.setTranslationX(10f)
 //        dragView.setTranslationY(10f)
-        Log.e("haha"," exitAnimation  mWidthScale->$mWidthScale   mHeightScale->$mHeightScale  xDelta->$xDelta  yDelta->$yDelta")
+        Log.e("TEST"," exitAnimation  mWidthScale->$mWidthScale   mHeightScale->$mHeightScale  xDelta->$xDelta  yDelta->$yDelta")
         val sInterpolator: TimeInterpolator = LinearInterpolator()
 //        dragView.animate().setDuration(250L).scaleX(mWidthScale).scaleY(mHeightScale).translationX(xDelta).translationY(yDelta).setInterpolator(sInterpolator).withEndAction(endAction)
         dragView.animate().setDuration(150L).alpha(0f).setInterpolator(sInterpolator).withEndAction(endAction)
