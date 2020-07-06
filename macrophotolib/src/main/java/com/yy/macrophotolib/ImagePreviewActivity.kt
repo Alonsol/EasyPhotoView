@@ -6,16 +6,17 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.WindowManager
-import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.viewpager.widget.ViewPager
+import com.bumptech.glide.Glide
 import com.yy.macrophotolib.adapter.ImagePagerAdapter
 import com.yy.macrophotolib.entity.ImgOptionEntity
 import com.yy.macrophotolib.view.DragViewLayout
@@ -48,6 +49,8 @@ class ImagePreviewActivity : AppCompatActivity() {
 
     private lateinit var colorDrawable: ColorDrawable
 
+    private lateinit var  datas: ArrayList<ImageInfo>
+
     companion object {
         private const val DURATION = 250L
     }
@@ -67,6 +70,7 @@ class ImagePreviewActivity : AppCompatActivity() {
         }
         optionEntities = intent.getParcelableArrayListExtra("positions")
         mPagerPosition = intent.getIntExtra("image_index", 0)
+        datas = intent.getSerializableExtra("image_urls") as ArrayList<ImageInfo>
         colorDrawable = ColorDrawable(ContextCompat.getColor(this, android.R.color.black));
         root.setBackgroundDrawable(colorDrawable)
         if (!optionEntities.isEmpty()) {
@@ -81,7 +85,7 @@ class ImagePreviewActivity : AppCompatActivity() {
             Log.e("TEST","startX->$startX startY->$startY  startWidth->$startWidth  startHeight->$startHeight")
         }
 
-        mAdapter = ImagePagerAdapter(this, DataUtils.getUrls())
+        mAdapter = ImagePagerAdapter(this, datas)
         dragView.dragViewPager.adapter = mAdapter
         dragView.dragViewPager.offscreenPageLimit = 1
         dragView.dragViewPager.currentItem = 0
@@ -132,9 +136,12 @@ class ImagePreviewActivity : AppCompatActivity() {
                 Log.e("TEST","xDelta =${xDelta}  yDelta = ${yDelta}")
                 mWidthScale = startWidth.toFloat() / dragView.getWidth()
                 mHeightScale = startHeight.toFloat() / dragView.getHeight()
-                enterAnimation(Runnable {
-                    //开始动画之后要做的操作
-                })
+                Handler().postDelayed({
+                    enterAnimation(Runnable {
+                        //开始动画之后要做的操作
+                    })
+                },500)
+
                 return true
             }
         })
@@ -166,10 +173,10 @@ class ImagePreviewActivity : AppCompatActivity() {
 
         Log.e("TEST"," enterAnimation  mWidthScale->$mWidthScale   mHeightScale->$mHeightScale  xDelta->$xDelta  yDelta->$yDelta")
         val sDecelerator: TimeInterpolator = DecelerateInterpolator()
-        dragView.animate().setDuration(DURATION).scaleX(1F)
+        dragView.animate().setDuration(2000).scaleX(1F)
                 .scaleY(1F).translationX(0F).translationY(0F).setInterpolator(sDecelerator).withEndAction(enterAction)
         val bgAnim = ObjectAnimator.ofInt(colorDrawable, "alpha", 0, 255)
-        bgAnim.setDuration(DURATION)
+        bgAnim.setDuration(2000)
         bgAnim.start()
     }
 
@@ -194,7 +201,7 @@ class ImagePreviewActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-
+        Glide.get(this).clearMemory()
     }
 
 }

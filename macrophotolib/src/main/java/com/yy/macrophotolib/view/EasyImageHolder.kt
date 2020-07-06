@@ -3,6 +3,7 @@ package com.yy.macrophotolib.view
 import android.app.Activity
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
@@ -18,7 +19,9 @@ import com.bumptech.glide.request.Request
 import com.bumptech.glide.request.target.SizeReadyCallback
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
+//import com.yy.macrophotolib.GlideApp
 import com.yy.macrophotolib.R
+import com.yy.macrophotolib.utils.LoadUtils
 import com.yy.macrophotolib.utils.ScreenUtils
 import java.util.*
 
@@ -37,11 +40,8 @@ class EasyImageHolder @JvmOverloads constructor(
 
     fun loadFile(url: String,viewPosition: ArrayList<String>?
                  ,  selectPosition:Int=0) {
-//        this.selectPosition=selectPosition
-//        mViewPosition.clear()
-//        mViewPosition.addAll(viewPosition)
         Glide.with(context)
-            .load(url)
+            .load(if (url.startsWith("http") || url.startsWith("https") || Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) url else LoadUtils.getImageContentUri(context, url))
             .into(object : Target<Drawable> {
                 override fun onLoadStarted(placeholder: Drawable?) {
 
@@ -58,7 +58,7 @@ class EasyImageHolder @JvmOverloads constructor(
                 }
 
                 override fun getSize(cb: SizeReadyCallback) {
-                    cb.onSizeReady(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                    cb.onSizeReady(480, 840)
                 }
 
                 override fun getRequest(): Request? {

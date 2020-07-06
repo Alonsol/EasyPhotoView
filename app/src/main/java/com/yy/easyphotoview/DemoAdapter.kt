@@ -1,6 +1,7 @@
 package com.yy.easyphotoview
 
 import android.content.Context
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,7 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.yy.macrophotolib.ImageInfo
+import com.yy.macrophotolib.utils.LoadUtils
 import java.util.*
 
 /**
@@ -28,7 +30,15 @@ class DemoAdapter(val context: Context, val items: List<ImageInfo>) :
     override fun getItemCount(): Int = items.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        Glide.with(context).load(items[position].remoteUrl).into(holder.image)
+        var url = items[position].remoteUrl
+        if (url.startsWith("http") || url.startsWith("https") || Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            Glide.with(context).load(items[position].remoteUrl).into(holder.image)
+        } else {
+            Glide.with(context)
+                .load(LoadUtils.getImageContentUri(context, url))
+                .into(holder.image)
+        }
+//        Glide.with(context).load(url).into(holder.image)
         holder.flRoot.setOnClickListener {
             mOnChooseListener?.onChoose(position, items)
         }

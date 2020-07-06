@@ -17,6 +17,7 @@ public class ImageInfo implements Serializable {
         this.remoteUrl = remoteUrl;
     }
 
+
     private boolean isCheckQrCode;  //是否检测了二维码
     private String qrCodeContent;  //二维码内容
 
