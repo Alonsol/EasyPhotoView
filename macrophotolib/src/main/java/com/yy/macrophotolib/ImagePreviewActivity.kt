@@ -136,11 +136,9 @@ class ImagePreviewActivity : AppCompatActivity() {
                 Log.e("TEST","xDelta =${xDelta}  yDelta = ${yDelta}")
                 mWidthScale = startWidth.toFloat() / dragView.getWidth()
                 mHeightScale = startHeight.toFloat() / dragView.getHeight()
-                Handler().postDelayed({
-                    enterAnimation(Runnable {
-                        //开始动画之后要做的操作
-                    })
-                },500)
+                enterAnimation(Runnable {
+                    //开始动画之后要做的操作
+                })
 
                 return true
             }
@@ -173,10 +171,10 @@ class ImagePreviewActivity : AppCompatActivity() {
 
         Log.e("TEST"," enterAnimation  mWidthScale->$mWidthScale   mHeightScale->$mHeightScale  xDelta->$xDelta  yDelta->$yDelta")
         val sDecelerator: TimeInterpolator = DecelerateInterpolator()
-        dragView.animate().setDuration(2000).scaleX(1F)
+        dragView.animate().setDuration(DURATION).scaleX(1F)
                 .scaleY(1F).translationX(0F).translationY(0F).setInterpolator(sDecelerator).withEndAction(enterAction)
         val bgAnim = ObjectAnimator.ofInt(colorDrawable, "alpha", 0, 255)
-        bgAnim.setDuration(2000)
+        bgAnim.setDuration(DURATION)
         bgAnim.start()
     }
 

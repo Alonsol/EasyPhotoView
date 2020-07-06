@@ -1,25 +1,24 @@
 package com.yy.macrophotolib.view
 
+//import com.yy.macrophotolib.GlideApp
 import android.app.Activity
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.os.Handler
 import android.util.AttributeSet
 import android.view.Gravity
-import android.view.View
 import android.view.ViewTreeObserver.OnPreDrawListener
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import com.alexvasilkov.gestures.Settings
 import com.alexvasilkov.gestures.animation.ViewPosition
-import com.alexvasilkov.gestures.animation.ViewPositionAnimator.PositionUpdateListener
 import com.alexvasilkov.gestures.views.GestureImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.Request
 import com.bumptech.glide.request.target.SizeReadyCallback
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
-//import com.yy.macrophotolib.GlideApp
 import com.yy.macrophotolib.R
 import com.yy.macrophotolib.utils.LoadUtils
 import com.yy.macrophotolib.utils.ScreenUtils
@@ -36,12 +35,19 @@ class EasyImageHolder @JvmOverloads constructor(
 
     private var selectPosition = 0
     private val mViewPosition = ArrayList<String>()
-    private var gestureImage :GestureImageView?=null
+    private var gestureImage: GestureImageView? = null
 
-    fun loadFile(url: String,viewPosition: ArrayList<String>?
-                 ,  selectPosition:Int=0) {
+    fun loadFile(
+        url: String, viewPosition: ArrayList<String>?
+        , selectPosition: Int = 0
+    ) {
         Glide.with(context)
-            .load(if (url.startsWith("http") || url.startsWith("https") || Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) url else LoadUtils.getImageContentUri(context, url))
+            .load(
+                if (url.startsWith("http") || url.startsWith("https") || Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) url else LoadUtils.getImageContentUri(
+                    context,
+                    url
+                )
+            )
             .into(object : Target<Drawable> {
                 override fun onLoadStarted(placeholder: Drawable?) {
 
@@ -54,7 +60,7 @@ class EasyImageHolder @JvmOverloads constructor(
                         LayoutParams.MATCH_PARENT,
                         LayoutParams.MATCH_PARENT
                     )
-                    addView(imageView,layoutParam)
+                    addView(imageView, layoutParam)
                 }
 
                 override fun getSize(cb: SizeReadyCallback) {
@@ -126,7 +132,7 @@ class EasyImageHolder @JvmOverloads constructor(
     private fun loadNormalPic(resource: Drawable, scale: Float) {
 
         var gestureImage = GestureImageView(context)
-        this.gestureImage= gestureImage
+        this.gestureImage = gestureImage
         gestureImage.controller.settings.isRotationEnabled = false
         gestureImage.controller.settings.isRestrictRotation = true
         gestureImage.controller.settings.maxZoom = 3 * scale
@@ -161,34 +167,34 @@ class EasyImageHolder @JvmOverloads constructor(
         addView(gestureImage, layoutParam)
         gestureImage.setImageDrawable(resource)
 //        runAfterImageDraw(gestureImage)
-        gestureImage.setOnClickListener{
+        gestureImage.setOnClickListener {
             (context as Activity).onBackPressed()
         }
 
     }
 
 
-    private fun runAfterImageDraw( gestureImage: GestureImageView) {
+    private fun runAfterImageDraw(gestureImage: GestureImageView) {
         gestureImage.getViewTreeObserver().addOnPreDrawListener(object : OnPreDrawListener {
             override fun onPreDraw(): Boolean {
                 gestureImage.getViewTreeObserver().removeOnPreDrawListener(this)
                 // 只有当activity不是从保存状态创建时，才应该播放动画
-                enterFullImage( gestureImage,selectPosition)
+                enterFullImage(gestureImage, selectPosition)
                 return true
             }
         })
         gestureImage.invalidate()
     }
 
-    private fun enterFullImage( gestureImage: GestureImageView,positions: Int) {
+    private fun enterFullImage(gestureImage: GestureImageView, positions: Int) {
         // 播放从提供的位置输入动画
-        if ( mViewPosition.size > positions) {
+        if (mViewPosition.size > positions) {
             val position = ViewPosition.unpack(mViewPosition.get(positions))
             gestureImage.getPositionAnimator().enter(position, true)
         }
     }
 
-    fun onBackPressd(){
+    fun onBackPressd() {
         gestureImage?.getPositionAnimator()?.exit(true)
     }
 
