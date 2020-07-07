@@ -1,47 +1,90 @@
 package com.yy.macrophotolib.view
 
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.RelativeLayout
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
+import androidx.core.view.size
 import androidx.customview.widget.ViewDragHelper
+import androidx.viewpager.widget.ViewPager
+import com.yy.macrophotolib.R
+import com.yy.macrophotolib.utils.ScreenUtils
 import kotlin.math.abs
 
+
+/**
+ * Created by yy on 2020/7/03.
+ * function: 手势操作控件
+ */
 class DragViewLayout @JvmOverloads constructor(
-        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : RelativeLayout(context, attrs, defStyleAttr) {
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : RelativeLayout(context, attrs, defStyleAttr), ViewPager.OnPageChangeListener {
 
     private lateinit var dragHelper: ViewDragHelper
     lateinit var dragViewPager: UnScrollableViewPager
+    lateinit var leftTextView: TextView
+    lateinit var rightTextView: TextView
     private var overLimit = false
-    private var mWidth = 0
-    private var mHeight: Int = 0
-
+    private var listener: DragListener? = null
+    private var downX = 0f
+    private var downY = 0f
 
     init {
         addDragView()
+        addLeftBottomView()
+        addRightBottomView()
         initDragHelper()
+    }
+
+    private fun addLeftBottomView() {
+        leftTextView = TextView(context)
+        leftTextView.textSize = 16f
+        leftTextView.setTextColor(Color.WHITE)
+        leftTextView.setPadding(25, 10, 25, 10)
+        val layoutParam = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+        layoutParam.addRule(ALIGN_PARENT_LEFT)
+        layoutParam.addRule(ALIGN_PARENT_BOTTOM)
+        layoutParam.leftMargin = ScreenUtils.dp2px(context, 15)
+        layoutParam.bottomMargin = ScreenUtils.dp2px(context, 15)
+        leftTextView.setBackgroundResource(R.drawable.shape_bottom)
+        leftTextView.layoutParams = layoutParam
+        addView(leftTextView)
+    }
+
+    private fun addRightBottomView() {
+        rightTextView = TextView(context)
+        rightTextView.textSize = 16f
+        rightTextView.setTextColor(Color.WHITE)
+        rightTextView.setPadding(25, 10, 25, 10)
+        val layoutParam = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
+        layoutParam.addRule(ALIGN_PARENT_RIGHT)
+        layoutParam.addRule(ALIGN_PARENT_BOTTOM)
+        layoutParam.rightMargin = ScreenUtils.dp2px(context, 15)
+        layoutParam.bottomMargin = ScreenUtils.dp2px(context, 15)
+        rightTextView.setBackgroundResource(R.drawable.shape_bottom)
+        rightTextView.layoutParams = layoutParam
+        rightTextView.text = "保存"
+        addView(rightTextView)
+
+        rightTextView.setOnClickListener {
+
+        }
     }
 
     private fun addDragView() {
         dragViewPager = UnScrollableViewPager(context)
-        val layoutParam = LayoutParams(
-                LayoutParams.MATCH_PARENT,
-                LayoutParams.MATCH_PARENT
-        )
+        val layoutParam = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         layoutParam.addRule(CENTER_IN_PARENT)
         dragViewPager.setBackgroundColor(Color.TRANSPARENT)
         addView(dragViewPager, layoutParam)
-    }
 
-    private var scale = 0f
+        dragViewPager.addOnPageChangeListener(this)
+    }
 
     private fun initDragHelper() {
         dragHelper = ViewDragHelper.create(this, object : ViewDragHelper.Callback() {
@@ -59,13 +102,14 @@ class DragViewLayout @JvmOverloads constructor(
 
             override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
 
-                if (releasedChild === dragViewPager) {
+                if (releasedChild == dragViewPager) {
                     if (overLimit || abs(yvel) > 8000) {
                         if (listener != null) {
                             listener!!.onDragFinished()
                         }
                         overLimit = false
                     } else {
+
                         dragHelper.settleCapturedViewAt(0, 0)
                         invalidate()
                     }
@@ -83,18 +127,29 @@ class DragViewLayout @JvmOverloads constructor(
             }
 
             override fun onViewPositionChanged(
-                    changedView: View,
-                    left: Int,
-                    top: Int,
-                    dx: Int,
-                    dy: Int
+                changedView: View,
+                left: Int,
+                top: Int,
+                dx: Int,
+                dy: Int
             ) {
                 val a = top.toFloat() / measuredHeight.toFloat()
                 var scale = 1 - 2 * abs(a)
                 if (scale <= 0) {
                     scale = 0f
                 }
+                if (a == 0f) {
+                    leftTextView.alpha = 1f
+                    rightTextView.alpha = 1f
+
+                } else {
+                    leftTextView.alpha = 0f
+                    rightTextView.alpha = 0f
+                }
+
+                currentScale = scale
                 (parent as ConstraintLayout).setBackgroundColor(changeAlpha(-0x1000000, scale))
+
                 if (abs(top) <= measuredHeight / 4) {
                     scale = 1 - abs(a)
                     dragViewPager.scaleX = scale
@@ -104,19 +159,9 @@ class DragViewLayout @JvmOverloads constructor(
 
             }
         })
-
     }
 
-
-    fun startFinishAnim() {
-        Log.e("test", "alpha ->$scale")
-        val publishAlphaAnim = ObjectAnimator.ofFloat(this, "alpha", scale, 0f)
-        val animatorSet = AnimatorSet()
-        animatorSet.duration = 300
-        animatorSet.play(publishAlphaAnim)
-        animatorSet.start()
-    }
-
+    private var currentScale = 0f
 
     fun changeAlpha(color: Int, fraction: Float): Int {
         val red = Color.red(color)
@@ -126,8 +171,6 @@ class DragViewLayout @JvmOverloads constructor(
         return Color.argb(alpha, red, green, blue)
     }
 
-    private var downX = 0f
-    private var downY: kotlin.Float = 0f
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         when (ev.action) {
@@ -137,9 +180,9 @@ class DragViewLayout @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_MOVE -> {
-                val distanceX = Math.abs(ev.rawX - downX)
-                val distanceY = Math.abs(ev.rawY - downY)
-                if (distanceX > dragHelper.getTouchSlop() && distanceX > distanceY) {
+                val distanceX = abs(ev.rawX - downX)
+                val distanceY = abs(ev.rawY - downY)
+                if (distanceX > dragHelper.touchSlop && distanceX > distanceY) {
                     return super.onInterceptTouchEvent(ev)
                 }
             }
@@ -162,21 +205,27 @@ class DragViewLayout @JvmOverloads constructor(
     }
 
 
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        super.onLayout(changed, l, t, r, b)
-
-        if (changed) {
-            mWidth = width
-            mHeight = height
-        }
-    }
-
-    private var listener: DragListener? = null
     fun setDragListener(listener: DragListener?) {
         this.listener = listener
     }
 
     interface DragListener {
         fun onDragFinished()
+        fun onPageSelected(position: Int)
     }
+
+    override fun onPageScrollStateChanged(state: Int) {
+
+    }
+
+    override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+
+    }
+
+    override fun onPageSelected(position: Int) {
+        listener?.onPageSelected(position)
+        leftTextView.text = "${position +1}/${dragViewPager.adapter?.count}"
+    }
+
+
 }

@@ -23,7 +23,10 @@ import com.yy.macrophotolib.view.DragViewLayout
 import kotlinx.android.synthetic.main.activity_image_preview.*
 import java.util.*
 
-
+/**
+ * Created by yy on 2020/7/03.
+ * function: 图片预览
+ */
 class ImagePreviewActivity : AppCompatActivity() {
 
     private lateinit var mAdapter: ImagePagerAdapter
@@ -49,7 +52,7 @@ class ImagePreviewActivity : AppCompatActivity() {
 
     private lateinit var colorDrawable: ColorDrawable
 
-    private lateinit var  datas: ArrayList<ImageInfo>
+    private lateinit var datas: ArrayList<ImageInfo>
 
     companion object {
         private const val DURATION = 250L
@@ -73,34 +76,25 @@ class ImagePreviewActivity : AppCompatActivity() {
         datas = intent.getSerializableExtra("image_urls") as ArrayList<ImageInfo>
         colorDrawable = ColorDrawable(ContextCompat.getColor(this, android.R.color.black));
         root.setBackgroundDrawable(colorDrawable)
-        if (!optionEntities.isEmpty()) {
-            //设置选中的位置来初始化动画
-            var entity = optionEntities.get(mPagerPosition)
+        if (optionEntities.isNotEmpty()) {
+            var entity = optionEntities[mPagerPosition]
 
-            startY = entity.getTop();
-            startX = entity.getLeft();
-            startWidth = entity.getWidth();
-            startHeight = entity.getHeight()
-
-            Log.e("TEST","startX->$startX startY->$startY  startWidth->$startWidth  startHeight->$startHeight")
+            startY = entity.top;
+            startX = entity.left;
+            startWidth = entity.width;
+            startHeight = entity.height
         }
 
         mAdapter = ImagePagerAdapter(this, datas)
         dragView.dragViewPager.adapter = mAdapter
         dragView.dragViewPager.offscreenPageLimit = 1
-        dragView.dragViewPager.currentItem = 0
-
-        dragView.dragViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
-            override fun onPageScrollStateChanged(state: Int) {
-
-            }
-
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-
+        dragView.setDragListener(object : DragViewLayout.DragListener {
+            override fun onDragFinished() {
+                onBackPressed()
             }
 
             override fun onPageSelected(position: Int) {
-                if (optionEntities != null && !optionEntities.isEmpty()) {
+                if (optionEntities.isNotEmpty()) {
                     val entity = optionEntities[position]
                     startY = entity.top
                     startX = entity.left
@@ -110,39 +104,26 @@ class ImagePreviewActivity : AppCompatActivity() {
             }
 
         })
-        dragView.setDragListener(object :
-                DragViewLayout.DragListener {
-            override fun onDragFinished() {
-                onBackPressed();
-
-            }
-
-        })
-        dragView.dragViewPager.currentItem = mPagerPosition
-        //注册一个回调函数，当一个视图树将要绘制时调用这个回调函数。
-        val observer = dragView.getViewTreeObserver();
-
-
-
+        val observer = dragView.viewTreeObserver
         observer.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
                 dragView.viewTreeObserver.removeOnPreDrawListener(this)
                 val screenLocation = IntArray(2)
                 dragView.getLocationOnScreen(screenLocation)
-                //动画需要移动的距离
                 xDelta = (startX - screenLocation[0]) * 1f
                 yDelta = (startY - screenLocation[1]) * 1f
-                //计算缩放比例
-                Log.e("TEST","xDelta =${xDelta}  yDelta = ${yDelta}")
                 mWidthScale = startWidth.toFloat() / dragView.getWidth()
                 mHeightScale = startHeight.toFloat() / dragView.getHeight()
                 enterAnimation(Runnable {
-                    //开始动画之后要做的操作
                 })
 
                 return true
             }
         })
+
+        dragView.dragViewPager.currentItem = mPagerPosition
+
+
 
 
     }
@@ -162,14 +143,13 @@ class ImagePreviewActivity : AppCompatActivity() {
 
     private fun enterAnimation(enterAction: Runnable) {
         //放大动画
-        dragView.setPivotX(0F)
-        dragView.setPivotY(0F)
-        dragView.setScaleX(mWidthScale)
-        dragView.setScaleY(mHeightScale)
-        dragView.setTranslationX(xDelta)
-        dragView.setTranslationY(yDelta)
+        dragView.pivotX = 0F
+        dragView.pivotY = 0F
+        dragView.scaleX = mWidthScale
+        dragView.scaleY = mHeightScale
+        dragView.translationX = xDelta
+        dragView.translationY = yDelta
 
-        Log.e("TEST"," enterAnimation  mWidthScale->$mWidthScale   mHeightScale->$mHeightScale  xDelta->$xDelta  yDelta->$yDelta")
         val sDecelerator: TimeInterpolator = DecelerateInterpolator()
         dragView.animate().setDuration(DURATION).scaleX(1F)
                 .scaleY(1F).translationX(0F).translationY(0F).setInterpolator(sDecelerator).withEndAction(enterAction)
@@ -180,13 +160,12 @@ class ImagePreviewActivity : AppCompatActivity() {
 
     private fun exitAnimation(endAction: Runnable) {
         //缩小动画
-        Log.e("TEST"," exitAnimation  mWidthScale->$mWidthScale   mHeightScale->$mHeightScale  xDelta->$xDelta  yDelta->$yDelta")
         val sInterpolator: TimeInterpolator = LinearInterpolator()
 //        dragView.animate().setDuration(250L).scaleX(mWidthScale).scaleY(mHeightScale).translationX(xDelta).translationY(yDelta).setInterpolator(sInterpolator).withEndAction(endAction)
-        dragView.animate().setDuration(150L).alpha(0f).setInterpolator(sInterpolator).withEndAction(endAction)
+        dragView.animate().setDuration(DURATION).alpha(0f).setInterpolator(sInterpolator).withEndAction(endAction)
         //设置背景渐透明
         val bgAnim: ObjectAnimator = ObjectAnimator.ofInt(colorDrawable, "alpha", 0)
-        bgAnim.setDuration(150L)
+        bgAnim.duration = DURATION
         bgAnim.start()
     }
 

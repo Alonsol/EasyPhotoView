@@ -134,6 +134,9 @@ class EasyImageHolder @JvmOverloads constructor(
     private fun loadLongImage(resource: Drawable, sWidth: Int, screenWith: Int): SubsamplingScaleImageView {
         var longImageView = SubsamplingScaleImageView(context)
         longImageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM)
+        longImageView.setOnClickListener {
+            (context as Activity).onBackPressed()
+        }
         val imageSource = ImageSource.bitmap(LoadUtils.drawableToBitmap(resource))
 
         val scale = sWidth * 1.0F / screenWith
@@ -154,8 +157,6 @@ class EasyImageHolder @JvmOverloads constructor(
         }
         return longImageView
     }
-
-    private var finished = false
 
     private fun loadNormalPic(resource: Drawable, scale: Float) {
 

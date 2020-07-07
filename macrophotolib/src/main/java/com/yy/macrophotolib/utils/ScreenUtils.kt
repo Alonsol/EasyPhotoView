@@ -33,4 +33,17 @@ object ScreenUtils {
         wm.defaultDisplay.getMetrics(outMetrics)
         return outMetrics.heightPixels
     }
+
+
+    /**
+     * dp单位转成px
+     *
+     * @param context context
+     * @param dp      dp值
+     * @return px值
+     */
+    fun dp2px(context: Context, dp: Int): Int {
+        return (dp * context.resources.displayMetrics.density).toInt()
+    }
+
 }
