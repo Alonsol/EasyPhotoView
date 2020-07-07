@@ -3,11 +3,13 @@ package com.yy.macrophotolib.view
 //import com.yy.macrophotolib.GlideApp
 import android.app.Activity
 import android.content.Context
+import android.graphics.BitmapFactory
+import android.graphics.PointF
 import android.graphics.drawable.Drawable
 import android.os.Build
-import android.os.Handler
 import android.util.AttributeSet
 import android.view.Gravity
+import android.view.View
 import android.view.ViewTreeObserver.OnPreDrawListener
 import android.widget.ImageView
 import android.widget.RelativeLayout
@@ -19,6 +21,9 @@ import com.bumptech.glide.request.Request
 import com.bumptech.glide.request.target.SizeReadyCallback
 import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
+import com.davemorrissey.labs.subscaleview.ImageSource
+import com.davemorrissey.labs.subscaleview.ImageViewState
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.yy.macrophotolib.R
 import com.yy.macrophotolib.utils.LoadUtils
 import com.yy.macrophotolib.utils.ScreenUtils
@@ -111,8 +116,7 @@ class EasyImageHolder @JvmOverloads constructor(
                     } else if (sWidth < sHeight) { //宽度小于高度
 
                         if (sHeight * scale > screenHeight) {//长图加载
-                            var longImageView = LongImageView(context)
-                            longImageView.loadUrl(url)
+                            var longImageView = loadLongImage(resource, sWidth, screenWith)
                             val layoutParam = LayoutParams(
                                 LayoutParams.MATCH_PARENT,
                                 LayoutParams.MATCH_PARENT
@@ -125,6 +129,30 @@ class EasyImageHolder @JvmOverloads constructor(
                     }
                 }
             })
+    }
+
+    private fun loadLongImage(resource: Drawable, sWidth: Int, screenWith: Int): SubsamplingScaleImageView {
+        var longImageView = SubsamplingScaleImageView(context)
+        longImageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM)
+        val imageSource = ImageSource.bitmap(LoadUtils.drawableToBitmap(resource))
+
+        val scale = sWidth * 1.0F / screenWith
+
+        if (scale < 1) {//图片宽度小于屏幕宽度
+            longImageView.minScale = screenWith * 1.0F / sWidth
+            longImageView.maxScale = 3 * longImageView.minScale
+            longImageView.setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM)
+            longImageView.setImage(imageSource, ImageViewState(screenWith * 1.0F / sWidth, PointF(0f, 0f), 0))
+            longImageView.setDoubleTapZoomStyle(SubsamplingScaleImageView.ZOOM_FOCUS_CENTER)
+            longImageView.setDoubleTapZoomScale(longImageView.maxScale)
+        } else {
+            longImageView.minScale = screenWith / sWidth.toFloat()
+            longImageView.maxScale = 10F;
+            longImageView. setMinimumScaleType(SubsamplingScaleImageView.SCALE_TYPE_CUSTOM)
+            longImageView.setImage(imageSource)
+            longImageView.setDoubleTapZoomStyle(SubsamplingScaleImageView.ZOOM_FOCUS_FIXED)
+        }
+        return longImageView
     }
 
     private var finished = false

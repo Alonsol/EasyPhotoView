@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.PointF
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
 import com.bumptech.glide.Glide
@@ -16,6 +17,7 @@ import com.bumptech.glide.request.transition.Transition
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.ImageViewState
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.yy.macrophotolib.utils.LoadUtils
 import com.yy.macrophotolib.utils.ScreenUtils
 import java.io.File
 import kotlin.math.min
@@ -37,7 +39,7 @@ class LongImageView @JvmOverloads constructor(
 
     fun loadUrl(url: String) {
         Glide.with(context)
-            .download(url)
+            .download(if (url.startsWith("http") || url.startsWith("https") || Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) url else LoadUtils.getImageContentUri(context, url))
             .into(object : Target<File> {
                 override fun onLoadStarted(placeholder: Drawable?) {
 
@@ -47,10 +49,7 @@ class LongImageView @JvmOverloads constructor(
                 }
 
                 override fun getSize(cb: SizeReadyCallback) {
-                    cb.onSizeReady(
-                        Target.SIZE_ORIGINAL,
-                        Target.SIZE_ORIGINAL
-                    )
+                    cb.onSizeReady(480, 840)
                 }
 
                 override fun getRequest(): Request? {
@@ -81,9 +80,7 @@ class LongImageView @JvmOverloads constructor(
                 ) {
                     val imageSource = ImageSource.uri(Uri.fromFile(resource))
                     val sWidth = BitmapFactory.decodeFile(resource.absolutePath).width
-                    val sHeight = BitmapFactory.decodeFile(resource.absolutePath).height
                     val screenWith: Int = ScreenUtils.getScreenWidth(context)
-                    val screenHeight: Int = ScreenUtils.getScreenHeight(context)
 
                     val scale = sWidth*1.0F / screenWith
 

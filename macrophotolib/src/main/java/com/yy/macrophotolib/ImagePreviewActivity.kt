@@ -180,12 +180,6 @@ class ImagePreviewActivity : AppCompatActivity() {
 
     private fun exitAnimation(endAction: Runnable) {
         //缩小动画
-//        dragView.setPivotX(0f)
-//        dragView.setPivotY(0f)
-//        dragView.setScaleX(1f)
-//        dragView.setScaleY(1f)
-//        dragView.setTranslationX(10f)
-//        dragView.setTranslationY(10f)
         Log.e("TEST"," exitAnimation  mWidthScale->$mWidthScale   mHeightScale->$mHeightScale  xDelta->$xDelta  yDelta->$yDelta")
         val sInterpolator: TimeInterpolator = LinearInterpolator()
 //        dragView.animate().setDuration(250L).scaleX(mWidthScale).scaleY(mHeightScale).translationX(xDelta).translationY(yDelta).setInterpolator(sInterpolator).withEndAction(endAction)
