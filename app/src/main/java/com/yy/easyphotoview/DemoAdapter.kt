@@ -31,7 +31,7 @@ class DemoAdapter(val context: Context, val items: List<ImageInfo>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         var url = items[position].remoteUrl
-        if (url.startsWith("http") || url.startsWith("https") || Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+        if (url.startsWith("http") || url.startsWith("https")) {
             Glide.with(context).load(items[position].remoteUrl).into(holder.image)
         } else {
             Glide.with(context)

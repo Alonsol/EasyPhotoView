@@ -104,17 +104,17 @@ class ImagePreviewActivity : AppCompatActivity() {
             }
 
         })
-        val observer = dragView.viewTreeObserver
-        observer.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+        dragView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
                 dragView.viewTreeObserver.removeOnPreDrawListener(this)
                 val screenLocation = IntArray(2)
                 dragView.getLocationOnScreen(screenLocation)
                 xDelta = (startX - screenLocation[0]) * 1f
                 yDelta = (startY - screenLocation[1]) * 1f
-                mWidthScale = startWidth.toFloat() / dragView.getWidth()
-                mHeightScale = startHeight.toFloat() / dragView.getHeight()
+                mWidthScale = startWidth.toFloat() / dragView.width
+                mHeightScale = startHeight.toFloat() / dragView.height
                 enterAnimation(Runnable {
+                    dragView.showBtn(true)
                 })
 
                 return true
@@ -122,10 +122,6 @@ class ImagePreviewActivity : AppCompatActivity() {
         })
 
         dragView.dragViewPager.currentItem = mPagerPosition
-
-
-
-
     }
 
     override fun onBackPressed() {
@@ -154,7 +150,7 @@ class ImagePreviewActivity : AppCompatActivity() {
         dragView.animate().setDuration(DURATION).scaleX(1F)
                 .scaleY(1F).translationX(0F).translationY(0F).setInterpolator(sDecelerator).withEndAction(enterAction)
         val bgAnim = ObjectAnimator.ofInt(colorDrawable, "alpha", 0, 255)
-        bgAnim.setDuration(DURATION)
+        bgAnim.duration = DURATION
         bgAnim.start()
     }
 

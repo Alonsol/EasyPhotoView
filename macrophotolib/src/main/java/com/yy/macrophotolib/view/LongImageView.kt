@@ -39,7 +39,7 @@ class LongImageView @JvmOverloads constructor(
 
     fun loadUrl(url: String) {
         Glide.with(context)
-            .download(if (url.startsWith("http") || url.startsWith("https") || Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) url else LoadUtils.getImageContentUri(context, url))
+            .download(if (url.startsWith("http") || url.startsWith("https") ) url else LoadUtils.getImageContentUri(context, url))
             .into(object : Target<File> {
                 override fun onLoadStarted(placeholder: Drawable?) {
 

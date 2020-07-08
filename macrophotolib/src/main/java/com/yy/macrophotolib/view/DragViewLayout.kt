@@ -9,7 +9,6 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
-import androidx.core.view.size
 import androidx.customview.widget.ViewDragHelper
 import androidx.viewpager.widget.ViewPager
 import com.yy.macrophotolib.R
@@ -76,6 +75,11 @@ class DragViewLayout @JvmOverloads constructor(
         }
     }
 
+    fun showBtn(isShow:Boolean){
+        leftTextView.visibility = if (isShow) View.VISIBLE else View.GONE
+        rightTextView.visibility = if (isShow) View.VISIBLE else View.GONE
+    }
+
     private fun addDragView() {
         dragViewPager = UnScrollableViewPager(context)
         val layoutParam = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
@@ -87,6 +91,7 @@ class DragViewLayout @JvmOverloads constructor(
     }
 
     private fun initDragHelper() {
+        showBtn(false)
         dragHelper = ViewDragHelper.create(this, object : ViewDragHelper.Callback() {
             override fun tryCaptureView(child: View, pointerId: Int): Boolean {
                 return child == dragViewPager
