@@ -75,7 +75,7 @@ class DragViewLayout @JvmOverloads constructor(
         }
     }
 
-    fun showBtn(isShow:Boolean){
+    fun showBtn(isShow: Boolean) {
         leftTextView.visibility = if (isShow) View.VISIBLE else View.GONE
         rightTextView.visibility = if (isShow) View.VISIBLE else View.GONE
     }
@@ -217,19 +217,24 @@ class DragViewLayout @JvmOverloads constructor(
     interface DragListener {
         fun onDragFinished()
         fun onPageSelected(position: Int)
+        fun onPageLoad()
     }
 
-    override fun onPageScrollStateChanged(state: Int) {
+    private var currentPosition = 0
 
+    override fun onPageScrollStateChanged(state: Int) {
+        if (currentPosition + 1 == dragViewPager.adapter?.count) {
+            listener?.onPageLoad()
+        }
     }
 
     override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-
     }
 
     override fun onPageSelected(position: Int) {
-        listener?.onPageSelected(position)
-        leftTextView.text = "${position +1}/${dragViewPager.adapter?.count}"
+        currentPosition = position
+        listener?.onPageSelected(currentPosition)
+        leftTextView.text = "${currentPosition + 1}/${dragViewPager.adapter?.count}"
     }
 
 

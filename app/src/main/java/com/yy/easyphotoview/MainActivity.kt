@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import com.yy.macrophotolib.DataUtils
+import com.yy.macrophotolib.EasyPhotoHelper
 import com.yy.macrophotolib.ImageInfo
 import com.yy.macrophotolib.ImagePreviewActivity
 import com.yy.macrophotolib.entity.ImgOptionEntity
@@ -26,27 +27,17 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        datas = DataUtils.getUrls();
+        datas = com.yy.macrophotolib.utils.DataUtils.getUrls()
         adapter = DemoAdapter(this, datas)
         recyclerView.layoutManager = GridLayoutManager(this, 4)
         recyclerView.adapter = adapter
         adapter.setOnChooseListener(object : DemoAdapter.OnChooseListener {
             override fun onChoose(position: Int, items: List<ImageInfo>) {
-                val intent = Intent(this@MainActivity, ImagePreviewActivity::class.java)
-                val optionEntities = ArrayList<ImgOptionEntity>()
-                val screenLocationS = IntArray(2)
-                val imgDatas = adapter.getAllView()
-                imgDatas.forEachIndexed { index, imageView ->
-                    imageView.getLocationOnScreen(screenLocationS)
-                    var entity = ImgOptionEntity(screenLocationS[0],screenLocationS[1],imageView.width,imageView.height)
-                    optionEntities.add(entity)
-                }
-
-                intent.putExtra("image_urls", datas)
-                intent.putExtra("image_index", position)
-                intent.putParcelableArrayListExtra("positions", optionEntities)
-                startActivity(intent)
-                overridePendingTransition(0, 0)
+                EasyPhotoHelper(this@MainActivity)
+                    .addImageInfo(datas)
+                    .addLocationViews(adapter.getAllView())
+                    .currentPosition(position)
+                    .show()
             }
 
         })
@@ -64,6 +55,7 @@ class MainActivity : AppCompatActivity() {
                 .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) //界面中缩略图的质量
                 .thumbnailScale(0.8f) //蓝色主题
                 .theme(R.style.Matisse_Zhihu) //黑色主题
+                .originalEnable(true)
                 .imageEngine(GlideImageEngine()) //Picasso加载方式
                 .forResult(0x1111)
         }

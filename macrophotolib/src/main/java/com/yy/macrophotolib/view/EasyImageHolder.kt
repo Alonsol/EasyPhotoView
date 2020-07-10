@@ -5,10 +5,10 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.PointF
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnPreDrawListener
 import android.widget.ImageView
 import android.widget.RelativeLayout
@@ -27,7 +27,7 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.yy.macrophotolib.ImagePreviewActivity
 import com.yy.macrophotolib.R
 import com.yy.macrophotolib.callback.OnProcessFinishListener
-import com.yy.macrophotolib.dialog.BottomMenuFragment
+import com.yy.macrophotolib.dialog.BottomSheetWindow
 import com.yy.macrophotolib.utils.LoadUtils
 import com.yy.macrophotolib.utils.ScreenUtils
 import java.util.*
@@ -167,25 +167,27 @@ class EasyImageHolder @JvmOverloads constructor(
             longImageView.setDoubleTapZoomStyle(SubsamplingScaleImageView.ZOOM_FOCUS_FIXED)
         }
 
-        longImageView.setOnLongClickListener(object : View.OnLongClickListener {
-            override fun onLongClick(v: View?): Boolean {
-                BottomMenuFragment(context as ImagePreviewActivity)
-                    .setOnItemClickListener {
-                        LoadUtils.saveFile(context, url, object : OnProcessFinishListener {
-                            override fun onResult(success: Boolean) {
+        longImageView.setOnLongClickListener {
+            BottomSheetWindow(context).apply {
+                width(ViewGroup.LayoutParams.MATCH_PARENT)
+                view(R.layout.layout_bottom_menu)
+                animStyle(R.style.menu_animation)
+                setOnItemClickListener(object : BottomSheetWindow.OnItemClickListener {
+                    override fun onSave() {
+                        LoadUtils.saveFile(context, url,
+                            OnProcessFinishListener { success ->
                                 if (success) {
                                     Toast.makeText(context, "保存成功", Toast.LENGTH_SHORT).show()
                                 } else {
                                     Toast.makeText(context, "保存失败", Toast.LENGTH_SHORT).show()
                                 }
-                            }
-                        })
+                            })
                     }
-                    .show()
-                return true
-            }
 
-        })
+                })
+            }.showAtLocation(longImageView, Gravity.BOTTOM)
+            true
+        }
         return longImageView
     }
 
@@ -214,19 +216,24 @@ class EasyImageHolder @JvmOverloads constructor(
 
         gestureImage.setOnLongClickListener(object : View.OnLongClickListener {
             override fun onLongClick(v: View?): Boolean {
-                BottomMenuFragment(context as ImagePreviewActivity)
-                    .setOnItemClickListener {
-                        LoadUtils.saveFile(context, url, object : OnProcessFinishListener {
-                            override fun onResult(success: Boolean) {
-                                if (success) {
-                                    Toast.makeText(context, "保存成功", Toast.LENGTH_SHORT).show()
-                                } else {
-                                    Toast.makeText(context, "保存失败", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        })
-                    }
-                    .show()
+                BottomSheetWindow(context).apply {
+                    width(ViewGroup.LayoutParams.MATCH_PARENT)
+                    view(R.layout.layout_bottom_menu)
+                    animStyle(R.style.menu_animation)
+                    setOnItemClickListener(object : BottomSheetWindow.OnItemClickListener {
+                        override fun onSave() {
+                            LoadUtils.saveFile(context, url,
+                                OnProcessFinishListener { success ->
+                                    if (success) {
+                                        Toast.makeText(context, "保存成功", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        Toast.makeText(context, "保存失败", Toast.LENGTH_SHORT).show()
+                                    }
+                                })
+                        }
+
+                    })
+                }.showAtLocation(gestureImage, Gravity.BOTTOM)
                 return true
             }
 

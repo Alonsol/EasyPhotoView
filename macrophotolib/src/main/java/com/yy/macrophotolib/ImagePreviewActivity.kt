@@ -6,8 +6,6 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.WindowManager
@@ -15,9 +13,11 @@ import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
 import com.yy.macrophotolib.adapter.ImagePagerAdapter
+import com.yy.macrophotolib.const.CURRENT_POSITION
+import com.yy.macrophotolib.const.IMAGE_INFO
+import com.yy.macrophotolib.const.LOCATION_INFO
 import com.yy.macrophotolib.entity.ImgOptionEntity
 import com.yy.macrophotolib.view.DragViewLayout
 import kotlinx.android.synthetic.main.activity_image_preview.*
@@ -71,17 +71,17 @@ class ImagePreviewActivity : AppCompatActivity() {
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
         }
-        optionEntities = intent.getParcelableArrayListExtra("positions")
-        mPagerPosition = intent.getIntExtra("image_index", 0)
-        datas = intent.getSerializableExtra("image_urls") as ArrayList<ImageInfo>
-        colorDrawable = ColorDrawable(ContextCompat.getColor(this, android.R.color.black));
+        optionEntities = intent.getParcelableArrayListExtra(LOCATION_INFO)
+        mPagerPosition = intent.getIntExtra(CURRENT_POSITION, 0)
+        datas = intent.getSerializableExtra(IMAGE_INFO) as ArrayList<ImageInfo>
+        colorDrawable = ColorDrawable(ContextCompat.getColor(this, android.R.color.black))
         root.setBackgroundDrawable(colorDrawable)
         if (optionEntities.isNotEmpty()) {
             var entity = optionEntities[mPagerPosition]
 
-            startY = entity.top;
-            startX = entity.left;
-            startWidth = entity.width;
+            startY = entity.top
+            startX = entity.left
+            startWidth = entity.width
             startHeight = entity.height
         }
 
@@ -95,12 +95,17 @@ class ImagePreviewActivity : AppCompatActivity() {
 
             override fun onPageSelected(position: Int) {
                 if (optionEntities.isNotEmpty()) {
-                    val entity = optionEntities[position]
-                    startY = entity.top
-                    startX = entity.left
-                    startWidth = entity.width
-                    startHeight = entity.height
+//                    val entity = optionEntities[position]
+//                    startY = entity.top
+//                    startX = entity.left
+//                    startWidth = entity.width
+//                    startHeight = entity.height
                 }
+            }
+
+            override fun onPageLoad() {
+                datas.addAll(datas)
+                mAdapter.notifyDataSetChanged()
             }
 
         })
