@@ -1,14 +1,17 @@
 package com.yy.macrophotolib
 
-import android.app.Activity
 import android.content.Intent
+import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentManager
+import com.yy.macrophotolib.callback.OnImageListener
 import com.yy.macrophotolib.const.CURRENT_POSITION
 import com.yy.macrophotolib.const.IMAGE_INFO
 import com.yy.macrophotolib.const.LOCATION_INFO
 import com.yy.macrophotolib.entity.ImgOptionEntity
 
-class EasyPhotoHelper(private val context: Activity) {
+class EasyPhotoHelper(private val context: AppCompatActivity) {
 
 
     private val optionEntities = ArrayList<ImgOptionEntity>()
@@ -16,6 +19,12 @@ class EasyPhotoHelper(private val context: Activity) {
     private val imageInfo = ArrayList<ImageInfo>()
 
     private var currentPosition = 0
+
+    private var imagePreviewFragment: ImagePreviewFragment? = null
+
+    companion object {
+        private const val TAG = "EasyPhotoHelper"
+    }
 
     /**
      * 添加图片控件，转动画需要
@@ -47,6 +56,8 @@ class EasyPhotoHelper(private val context: Activity) {
 
 
     fun show() {
+//        val fragmentManager = context.supportFragmentManager
+//        findFragment(fragmentManager)
         val intent = Intent(context, ImagePreviewActivity::class.java)
         intent.putExtra(IMAGE_INFO, imageInfo)
         intent.putExtra(CURRENT_POSITION, currentPosition)
@@ -55,4 +66,37 @@ class EasyPhotoHelper(private val context: Activity) {
         context.overridePendingTransition(0, 0)
     }
 
+
+    /**
+     * 查看fragment
+     */
+    private fun findFragment(fragmentManager: FragmentManager?) {
+        var imagePreviewFragment = getFragment(fragmentManager)
+        if (imagePreviewFragment != null) {
+            return
+        } else {
+            imagePreviewFragment = ImagePreviewFragment()
+            var bundle = Bundle()
+            bundle.putParcelableArrayList(IMAGE_INFO, imageInfo)
+            bundle.putInt(CURRENT_POSITION, currentPosition)
+            bundle.putParcelableArrayList(LOCATION_INFO, optionEntities)
+            imagePreviewFragment.arguments = bundle
+            fragmentManager?.beginTransaction()?.add(android.R.id.content, imagePreviewFragment)
+                ?.commitNow()
+        }
+
+        imagePreviewFragment.addImageListener(object : OnImageListener {
+            override fun onRemove() {
+                var transaction = fragmentManager?.beginTransaction()
+                transaction?.remove(imagePreviewFragment)
+                transaction?.commit()
+            }
+
+        })
+
+    }
+
+    private fun getFragment(fragmentManager: FragmentManager?): ImagePreviewFragment? {
+        return fragmentManager?.findFragmentByTag(TAG) as ImagePreviewFragment?
+    }
 }

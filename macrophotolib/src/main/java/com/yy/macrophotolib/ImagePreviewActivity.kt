@@ -73,7 +73,7 @@ class ImagePreviewActivity : AppCompatActivity() {
         }
         optionEntities = intent.getParcelableArrayListExtra(LOCATION_INFO)
         mPagerPosition = intent.getIntExtra(CURRENT_POSITION, 0)
-        datas = intent.getSerializableExtra(IMAGE_INFO) as ArrayList<ImageInfo>
+        datas = intent.getParcelableArrayListExtra(IMAGE_INFO)
         colorDrawable = ColorDrawable(ContextCompat.getColor(this, android.R.color.black))
         root.setBackgroundDrawable(colorDrawable)
         if (optionEntities.isNotEmpty()) {

@@ -6,23 +6,19 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
-import com.yy.macrophotolib.DataUtils
 import com.yy.macrophotolib.EasyPhotoHelper
 import com.yy.macrophotolib.ImageInfo
-import com.yy.macrophotolib.ImagePreviewActivity
-import com.yy.macrophotolib.entity.ImgOptionEntity
 import com.yy.macrophotolib.utils.MediaUtil
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
 import com.zhihu.matisse.internal.entity.CaptureStrategy
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var adapter: DemoAdapter
-    private lateinit var  datas: ArrayList<ImageInfo>
+    private lateinit var datas: ArrayList<ImageInfo>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,8 +61,8 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 0x1111 && resultCode == RESULT_OK) {
             //图片路径 同样视频地址也是这个 根据requestCode
-            var pathList =  Matisse.obtainResult(data);
-            Log.e("haha","$pathList")
+            var pathList = Matisse.obtainResult(data);
+            Log.e("haha", "$pathList")
             val photos = ArrayList<ImageInfo>()
             for (uri in pathList) {
                 val photoPath = MediaUtil.getMediaUriPath(this@MainActivity, uri)
