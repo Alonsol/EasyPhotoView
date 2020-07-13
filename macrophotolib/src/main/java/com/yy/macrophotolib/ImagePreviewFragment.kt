@@ -110,28 +110,28 @@ class ImagePreviewFragment : Fragment() {
         mAdapter = ImagePagerAdapter(requireContext(), datas)
         dragView?.dragViewPager?.adapter = mAdapter
         dragView?.dragViewPager?.offscreenPageLimit = 1
-        dragView?.setDragListener(object : DragViewLayout.DragListener {
-            override fun onDragFinished() {
-                onBackPressed()
-
-            }
-
-            override fun onPageSelected(position: Int) {
-                if (optionEntities.isNotEmpty()) {
-//                    val entity = optionEntities[position]
-//                    startY = entity.top
-//                    startX = entity.left
-//                    startWidth = entity.width
-//                    startHeight = entity.height
-                }
-            }
-
-            override fun onPageLoad() {
-                datas.addAll(datas)
-                mAdapter.notifyDataSetChanged()
-            }
-
-        })
+//        dragView?.setDragListener(object : DragViewLayout.DragListener {
+//            override fun onDragFinished() {
+//                onBackPressed()
+//
+//            }
+//
+//            override fun onPageSelected(position: Int) {
+//                if (optionEntities.isNotEmpty()) {
+////                    val entity = optionEntities[position]
+////                    startY = entity.top
+////                    startX = entity.left
+////                    startWidth = entity.width
+////                    startHeight = entity.height
+//                }
+//            }
+//
+//            override fun onPageLoad() {
+//                datas.addAll(datas)
+//                mAdapter.notifyDataSetChanged()
+//            }
+//
+//        })
         dragView?.viewTreeObserver?.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
                 dragView?.viewTreeObserver?.removeOnPreDrawListener(this)
@@ -194,7 +194,6 @@ class ImagePreviewFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.e("haha","111111111111")
         Glide.get(requireContext()).clearMemory()
     }
 

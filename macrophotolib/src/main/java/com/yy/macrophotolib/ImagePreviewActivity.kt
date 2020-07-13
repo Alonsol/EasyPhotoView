@@ -15,19 +15,21 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.yy.macrophotolib.adapter.ImagePagerAdapter
+import com.yy.macrophotolib.callback.ILoadDataResultListener
 import com.yy.macrophotolib.const.CURRENT_POSITION
 import com.yy.macrophotolib.const.IMAGE_INFO
 import com.yy.macrophotolib.const.LOCATION_INFO
 import com.yy.macrophotolib.entity.ImgOptionEntity
+import com.yy.macrophotolib.manager.DataManager
 import com.yy.macrophotolib.view.DragViewLayout
 import kotlinx.android.synthetic.main.activity_image_preview.*
-import java.util.*
 
 /**
  * Created by yy on 2020/7/03.
  * function: 图片预览
  */
-class ImagePreviewActivity : AppCompatActivity() {
+class ImagePreviewActivity : AppCompatActivity(), DragViewLayout.DragListener,
+    ILoadDataResultListener {
 
     private lateinit var mAdapter: ImagePagerAdapter
     private var mPagerPosition = 0
@@ -65,7 +67,7 @@ class ImagePreviewActivity : AppCompatActivity() {
             val window = window
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             window.decorView.systemUiVisibility =
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.statusBarColor = Color.TRANSPARENT
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -88,27 +90,7 @@ class ImagePreviewActivity : AppCompatActivity() {
         mAdapter = ImagePagerAdapter(this, datas)
         dragView.dragViewPager.adapter = mAdapter
         dragView.dragViewPager.offscreenPageLimit = 1
-        dragView.setDragListener(object : DragViewLayout.DragListener {
-            override fun onDragFinished() {
-                onBackPressed()
-            }
-
-            override fun onPageSelected(position: Int) {
-                if (optionEntities.isNotEmpty()) {
-//                    val entity = optionEntities[position]
-//                    startY = entity.top
-//                    startX = entity.left
-//                    startWidth = entity.width
-//                    startHeight = entity.height
-                }
-            }
-
-            override fun onPageLoad() {
-                datas.addAll(datas)
-                mAdapter.notifyDataSetChanged()
-            }
-
-        })
+        dragView.setDragListener(this)
         dragView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
                 dragView.viewTreeObserver.removeOnPreDrawListener(this)
@@ -121,19 +103,35 @@ class ImagePreviewActivity : AppCompatActivity() {
                 enterAnimation(Runnable {
                     dragView.showBtn(true)
                 })
-
                 return true
             }
         })
 
         dragView.dragViewPager.currentItem = mPagerPosition
+
+        DataManager.getInstance(this).addLoadResultListener(this)
+    }
+
+
+    override fun onDragFinished() {
+        onBackPressed()
+    }
+
+    override fun onPageSelected(position: Int) {
+        if (optionEntities.isNotEmpty()) {
+//            val entity = optionEntities[position]
+//            startY = entity.top
+//            startX = entity.left
+//            startWidth = entity.width
+//            startHeight = entity.height
+        }
     }
 
     override fun onBackPressed() {
         val screenLocation = IntArray(2)
         dragView.getLocationOnScreen(screenLocation)
-        xDelta = (startX - screenLocation[0]/2) * 1f
-        yDelta = (startY - screenLocation[1]/2) * 1f
+        xDelta = (startX - screenLocation[0] / 2) * 1f
+        yDelta = (startY - screenLocation[1] / 2) * 1f
         mWidthScale = startWidth.toFloat() / dragView.getWidth()
         mHeightScale = startHeight.toFloat() / dragView.getHeight()
         exitAnimation(Runnable { //结束动画要做的操作
@@ -153,7 +151,8 @@ class ImagePreviewActivity : AppCompatActivity() {
 
         val sDecelerator: TimeInterpolator = DecelerateInterpolator()
         dragView.animate().setDuration(DURATION).scaleX(1F)
-                .scaleY(1F).translationX(0F).translationY(0F).setInterpolator(sDecelerator).withEndAction(enterAction)
+            .scaleY(1F).translationX(0F).translationY(0F).setInterpolator(sDecelerator)
+            .withEndAction(enterAction)
         val bgAnim = ObjectAnimator.ofInt(colorDrawable, "alpha", 0, 255)
         bgAnim.duration = DURATION
         bgAnim.start()
@@ -163,7 +162,8 @@ class ImagePreviewActivity : AppCompatActivity() {
         //缩小动画
         val sInterpolator: TimeInterpolator = LinearInterpolator()
 //        dragView.animate().setDuration(250L).scaleX(mWidthScale).scaleY(mHeightScale).translationX(xDelta).translationY(yDelta).setInterpolator(sInterpolator).withEndAction(endAction)
-        dragView.animate().setDuration(DURATION).alpha(0f).setInterpolator(sInterpolator).withEndAction(endAction)
+        dragView.animate().setDuration(DURATION).alpha(0f).setInterpolator(sInterpolator)
+            .withEndAction(endAction)
         //设置背景渐透明
         val bgAnim: ObjectAnimator = ObjectAnimator.ofInt(colorDrawable, "alpha", 0)
         bgAnim.duration = DURATION
@@ -173,7 +173,19 @@ class ImagePreviewActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        DataManager.getInstance(this).release()
         Glide.get(this).clearMemory()
+    }
+
+    override fun updatePhoto(images: List<ImageInfo>, header: Boolean) {
+        if (header) {
+            datas.addAll(0, images)
+            mAdapter.notifyDataSetChanged()
+            dragView.dragViewPager.setCurrentItem(images.size - 1,false)
+        } else {
+            datas.addAll(images)
+            mAdapter.notifyDataSetChanged()
+        }
     }
 
 }

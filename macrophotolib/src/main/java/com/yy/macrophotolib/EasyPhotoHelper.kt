@@ -1,17 +1,20 @@
 package com.yy.macrophotolib
 
+import android.app.Activity
 import android.content.Intent
-import android.os.Bundle
+import android.util.Log
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentManager
-import com.yy.macrophotolib.callback.OnImageListener
+import com.yy.macrophotolib.callback.ILoadDataCallback
 import com.yy.macrophotolib.const.CURRENT_POSITION
 import com.yy.macrophotolib.const.IMAGE_INFO
 import com.yy.macrophotolib.const.LOCATION_INFO
 import com.yy.macrophotolib.entity.ImgOptionEntity
+import com.yy.macrophotolib.manager.DataManager
+import com.yy.macrophotolib.utils.DataUtils
+import java.lang.ref.WeakReference
+import kotlin.math.acos
 
-class EasyPhotoHelper(private val context: AppCompatActivity) {
+class EasyPhotoHelper(private val activity: Activity) {
 
 
     private val optionEntities = ArrayList<ImgOptionEntity>()
@@ -20,10 +23,16 @@ class EasyPhotoHelper(private val context: AppCompatActivity) {
 
     private var currentPosition = 0
 
-    private var imagePreviewFragment: ImagePreviewFragment? = null
+    private var listener:ILoadDataCallback?=null
+
 
     companion object {
         private const val TAG = "EasyPhotoHelper"
+    }
+
+    init {
+        DataManager.getInstance(activity).setDataCallback(DataUpdateListener(activity))
+
     }
 
     /**
@@ -54,49 +63,39 @@ class EasyPhotoHelper(private val context: AppCompatActivity) {
         currentPosition = position
     }
 
+    fun addPageReadyListener(listener:ILoadDataCallback) = apply {
+        this.listener = listener
+    }
+
+    inner class DataUpdateListener(activity: Activity) : ILoadDataCallback {
+        private val weakActivity: WeakReference<Activity> = WeakReference(activity)
+
+        override fun loadPreData() {
+            weakActivity.get()?.let {
+                listener?.loadPreData()
+            }
+
+        }
+
+
+
+        override fun loadNextData() {
+            weakActivity.get()?.let {
+                listener?.loadNextData()
+
+            }
+        }
+    }
+
+
 
     fun show() {
-//        val fragmentManager = context.supportFragmentManager
-//        findFragment(fragmentManager)
-        val intent = Intent(context, ImagePreviewActivity::class.java)
+        val intent = Intent(activity, ImagePreviewActivity::class.java)
         intent.putExtra(IMAGE_INFO, imageInfo)
         intent.putExtra(CURRENT_POSITION, currentPosition)
         intent.putParcelableArrayListExtra(LOCATION_INFO, optionEntities)
-        context.startActivity(intent)
-        context.overridePendingTransition(0, 0)
+        activity.startActivity(intent)
+        activity.overridePendingTransition(0, 0)
     }
 
-
-    /**
-     * 查看fragment
-     */
-    private fun findFragment(fragmentManager: FragmentManager?) {
-        var imagePreviewFragment = getFragment(fragmentManager)
-        if (imagePreviewFragment != null) {
-            return
-        } else {
-            imagePreviewFragment = ImagePreviewFragment()
-            var bundle = Bundle()
-            bundle.putParcelableArrayList(IMAGE_INFO, imageInfo)
-            bundle.putInt(CURRENT_POSITION, currentPosition)
-            bundle.putParcelableArrayList(LOCATION_INFO, optionEntities)
-            imagePreviewFragment.arguments = bundle
-            fragmentManager?.beginTransaction()?.add(android.R.id.content, imagePreviewFragment)
-                ?.commitNow()
-        }
-
-        imagePreviewFragment.addImageListener(object : OnImageListener {
-            override fun onRemove() {
-                var transaction = fragmentManager?.beginTransaction()
-                transaction?.remove(imagePreviewFragment)
-                transaction?.commit()
-            }
-
-        })
-
-    }
-
-    private fun getFragment(fragmentManager: FragmentManager?): ImagePreviewFragment? {
-        return fragmentManager?.findFragmentByTag(TAG) as ImagePreviewFragment?
-    }
 }

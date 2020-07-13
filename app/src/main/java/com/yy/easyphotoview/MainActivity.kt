@@ -8,6 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import com.yy.macrophotolib.EasyPhotoHelper
 import com.yy.macrophotolib.ImageInfo
+import com.yy.macrophotolib.callback.ILoadDataCallback
+import com.yy.macrophotolib.manager.DataManager
+import com.yy.macrophotolib.utils.DataUtils
 import com.yy.macrophotolib.utils.MediaUtil
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
@@ -15,10 +18,14 @@ import com.zhihu.matisse.internal.entity.CaptureStrategy
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ILoadDataCallback {
 
     private lateinit var adapter: DemoAdapter
     private lateinit var datas: ArrayList<ImageInfo>
+
+    private var count = 0
+
+    private var remoteData = ArrayList<ImageInfo>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,12 +34,17 @@ class MainActivity : AppCompatActivity() {
         adapter = DemoAdapter(this, datas)
         recyclerView.layoutManager = GridLayoutManager(this, 4)
         recyclerView.adapter = adapter
+        remoteData = assembleData(DataUtils.getSystemPhotoList(this))
+
+
+
         adapter.setOnChooseListener(object : DemoAdapter.OnChooseListener {
             override fun onChoose(position: Int, items: List<ImageInfo>) {
                 EasyPhotoHelper(this@MainActivity)
                     .addImageInfo(datas)
                     .addLocationViews(adapter.getAllView())
                     .currentPosition(position)
+                    .addPageReadyListener(this@MainActivity)
                     .show()
             }
 
@@ -57,6 +69,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    private fun assembleData(list: List<String>): ArrayList<ImageInfo> {
+        var images = ArrayList<ImageInfo>()
+        list.forEach {
+            var info =ImageInfo(it)
+            images.add(info)
+        }
+        return images
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 0x1111 && resultCode == RESULT_OK) {
@@ -73,5 +95,15 @@ class MainActivity : AppCompatActivity() {
             datas.addAll(photos)
             adapter.notifyDataSetChanged()
         }
+    }
+
+    override fun loadPreData() {
+        DataManager.getInstance(this).updatePhoto(remoteData.subList(count,10+count),true)
+        count++
+    }
+
+    override fun loadNextData() {
+        count = 0
+        DataManager.getInstance(this).updatePhoto(remoteData.subList(count,10+count),false)
     }
 }

@@ -3,6 +3,7 @@ package com.yy.macrophotolib.view
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.RelativeLayout
@@ -12,6 +13,7 @@ import androidx.core.view.ViewCompat
 import androidx.customview.widget.ViewDragHelper
 import androidx.viewpager.widget.ViewPager
 import com.yy.macrophotolib.R
+import com.yy.macrophotolib.manager.DataManager
 import com.yy.macrophotolib.utils.ScreenUtils
 import kotlin.math.abs
 
@@ -52,7 +54,7 @@ class DragViewLayout @JvmOverloads constructor(
         layoutParam.bottomMargin = ScreenUtils.dp2px(context, 15)
         leftTextView.setBackgroundResource(R.drawable.shape_bottom)
         leftTextView.layoutParams = layoutParam
-        addView(leftTextView)
+//        addView(leftTextView)
     }
 
     private fun addRightBottomView() {
@@ -217,14 +219,17 @@ class DragViewLayout @JvmOverloads constructor(
     interface DragListener {
         fun onDragFinished()
         fun onPageSelected(position: Int)
-        fun onPageLoad()
     }
 
     private var currentPosition = 0
 
     override fun onPageScrollStateChanged(state: Int) {
-        if (currentPosition + 1 == dragViewPager.adapter?.count) {
-            listener?.onPageLoad()
+        if (state== ViewPager.SCROLL_STATE_IDLE) {
+            if (currentPosition + 1 == dragViewPager.adapter?.count) {
+                DataManager.getInstance(context).loadNextData()
+            } else if (currentPosition == 0) {
+                DataManager.getInstance(context).loadPreData()
+            }
         }
     }
 
@@ -234,7 +239,7 @@ class DragViewLayout @JvmOverloads constructor(
     override fun onPageSelected(position: Int) {
         currentPosition = position
         listener?.onPageSelected(currentPosition)
-        leftTextView.text = "${currentPosition + 1}/${dragViewPager.adapter?.count}"
+//        leftTextView.text = "${currentPosition + 1}/${dragViewPager.adapter?.count}"
     }
 
 
