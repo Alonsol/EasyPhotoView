@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide
 import com.yy.macrophotolib.adapter.ImagePagerAdapter
 import com.yy.macrophotolib.callback.ILoadDataResultListener
 import com.yy.macrophotolib.const.CURRENT_POSITION
+import com.yy.macrophotolib.const.ENABLE_LOAD_NOTIFY
 import com.yy.macrophotolib.const.IMAGE_INFO
 import com.yy.macrophotolib.const.LOCATION_INFO
 import com.yy.macrophotolib.entity.ImgOptionEntity
@@ -77,6 +78,7 @@ class ImagePreviewActivity : AppCompatActivity(), DragViewLayout.DragListener,
         mPagerPosition = intent.getIntExtra(CURRENT_POSITION, 0)
         datas = intent.getParcelableArrayListExtra(IMAGE_INFO)
         colorDrawable = ColorDrawable(ContextCompat.getColor(this, android.R.color.black))
+        var enableNotify = intent.getBooleanExtra(ENABLE_LOAD_NOTIFY,false)
         root.setBackgroundDrawable(colorDrawable)
         if (optionEntities.isNotEmpty()) {
             var entity = optionEntities[mPagerPosition]
@@ -88,6 +90,7 @@ class ImagePreviewActivity : AppCompatActivity(), DragViewLayout.DragListener,
         }
 
         mAdapter = ImagePagerAdapter(this, datas)
+        dragView.enableNotify(enableNotify)
         dragView.dragViewPager.adapter = mAdapter
         dragView.dragViewPager.offscreenPageLimit = 1
         dragView.setDragListener(this)
@@ -108,8 +111,17 @@ class ImagePreviewActivity : AppCompatActivity(), DragViewLayout.DragListener,
         })
 
         dragView.dragViewPager.currentItem = mPagerPosition
+        dragView.leftTextView.text = "${mPagerPosition + 1}/${datas.size}"
 
-        DataManager.getInstance(this).addLoadResultListener(this)
+
+
+        DataManager.getInstance().addLoadResultListener(this)
+
+        if (mPagerPosition == 0){
+            DataManager.getInstance().loadPreData()
+        } else if (mPagerPosition == datas.size -1){
+            DataManager.getInstance().loadNextData()
+        }
     }
 
 
@@ -173,7 +185,7 @@ class ImagePreviewActivity : AppCompatActivity(), DragViewLayout.DragListener,
 
     override fun onDestroy() {
         super.onDestroy()
-        DataManager.getInstance(this).release()
+        DataManager.getInstance().release()
         Glide.get(this).clearMemory()
     }
 
@@ -181,7 +193,7 @@ class ImagePreviewActivity : AppCompatActivity(), DragViewLayout.DragListener,
         if (header) {
             datas.addAll(0, images)
             mAdapter.notifyDataSetChanged()
-            dragView.dragViewPager.setCurrentItem(images.size - 1,false)
+            dragView.dragViewPager.setCurrentItem(images.size, false)
         } else {
             datas.addAll(images)
             mAdapter.notifyDataSetChanged()

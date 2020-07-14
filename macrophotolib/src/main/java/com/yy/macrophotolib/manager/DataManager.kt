@@ -6,7 +6,7 @@ import com.yy.macrophotolib.ImageInfo
 import com.yy.macrophotolib.callback.ILoadDataCallback
 import com.yy.macrophotolib.callback.ILoadDataResultListener
 
-class DataManager(activity: Context) {
+class DataManager() {
 
     private var callback: ILoadDataCallback? = null
 
@@ -17,11 +17,11 @@ class DataManager(activity: Context) {
         @Volatile
         private var instance: DataManager? = null
 
-        fun getInstance(activity: Context): DataManager {
+        fun getInstance(): DataManager {
             if (instance == null) {
                 synchronized(DataManager::class) {
                     if (instance == null) {
-                        instance = DataManager(activity.applicationContext)
+                        instance = DataManager()
                     }
                 }
             }

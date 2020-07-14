@@ -41,10 +41,11 @@ public class DataUtils {
             File file = new File(path);
             if (file.exists()) {
                 result.add(path);
-                Log.e("test", path);
             }
         }
 
         return result;
     }
+
+
 }

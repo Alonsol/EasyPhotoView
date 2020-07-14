@@ -2,17 +2,15 @@ package com.yy.macrophotolib
 
 import android.app.Activity
 import android.content.Intent
-import android.util.Log
 import android.view.View
 import com.yy.macrophotolib.callback.ILoadDataCallback
 import com.yy.macrophotolib.const.CURRENT_POSITION
+import com.yy.macrophotolib.const.ENABLE_LOAD_NOTIFY
 import com.yy.macrophotolib.const.IMAGE_INFO
 import com.yy.macrophotolib.const.LOCATION_INFO
 import com.yy.macrophotolib.entity.ImgOptionEntity
 import com.yy.macrophotolib.manager.DataManager
-import com.yy.macrophotolib.utils.DataUtils
 import java.lang.ref.WeakReference
-import kotlin.math.acos
 
 class EasyPhotoHelper(private val activity: Activity) {
 
@@ -23,7 +21,7 @@ class EasyPhotoHelper(private val activity: Activity) {
 
     private var currentPosition = 0
 
-    private var listener:ILoadDataCallback?=null
+    private var listener: ILoadDataCallback? = null
 
 
     companion object {
@@ -31,7 +29,7 @@ class EasyPhotoHelper(private val activity: Activity) {
     }
 
     init {
-        DataManager.getInstance(activity).setDataCallback(DataUpdateListener(activity))
+        DataManager.getInstance().setDataCallback(DataUpdateListener(activity))
 
     }
 
@@ -63,7 +61,7 @@ class EasyPhotoHelper(private val activity: Activity) {
         currentPosition = position
     }
 
-    fun addPageReadyListener(listener:ILoadDataCallback) = apply {
+    fun addPageReadyListener(listener: ILoadDataCallback) = apply {
         this.listener = listener
     }
 
@@ -74,10 +72,7 @@ class EasyPhotoHelper(private val activity: Activity) {
             weakActivity.get()?.let {
                 listener?.loadPreData()
             }
-
         }
-
-
 
         override fun loadNextData() {
             weakActivity.get()?.let {
@@ -88,11 +83,11 @@ class EasyPhotoHelper(private val activity: Activity) {
     }
 
 
-
     fun show() {
         val intent = Intent(activity, ImagePreviewActivity::class.java)
         intent.putExtra(IMAGE_INFO, imageInfo)
         intent.putExtra(CURRENT_POSITION, currentPosition)
+        intent.putExtra(ENABLE_LOAD_NOTIFY, listener != null)
         intent.putParcelableArrayListExtra(LOCATION_INFO, optionEntities)
         activity.startActivity(intent)
         activity.overridePendingTransition(0, 0)

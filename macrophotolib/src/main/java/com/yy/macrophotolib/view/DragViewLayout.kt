@@ -34,6 +34,7 @@ class DragViewLayout @JvmOverloads constructor(
     private var listener: DragListener? = null
     private var downX = 0f
     private var downY = 0f
+    private var enableNotify = false
 
     init {
         addDragView()
@@ -54,7 +55,12 @@ class DragViewLayout @JvmOverloads constructor(
         layoutParam.bottomMargin = ScreenUtils.dp2px(context, 15)
         leftTextView.setBackgroundResource(R.drawable.shape_bottom)
         leftTextView.layoutParams = layoutParam
-//        addView(leftTextView)
+        addView(leftTextView)
+    }
+
+
+    fun enableNotify(enableNotify: Boolean) {
+        this.enableNotify = enableNotify
     }
 
     private fun addRightBottomView() {
@@ -78,7 +84,7 @@ class DragViewLayout @JvmOverloads constructor(
     }
 
     fun showBtn(isShow: Boolean) {
-        leftTextView.visibility = if (isShow) View.VISIBLE else View.GONE
+        leftTextView.visibility = if (isShow && enableNotify) View.VISIBLE else View.GONE
         rightTextView.visibility = if (isShow) View.VISIBLE else View.GONE
     }
 
@@ -146,11 +152,15 @@ class DragViewLayout @JvmOverloads constructor(
                     scale = 0f
                 }
                 if (a == 0f) {
-                    leftTextView.alpha = 1f
+                    if (enableNotify) {
+                        leftTextView.alpha = 1f
+                    }
                     rightTextView.alpha = 1f
 
                 } else {
-                    leftTextView.alpha = 0f
+                    if (enableNotify) {
+                        leftTextView.alpha = 0f
+                    }
                     rightTextView.alpha = 0f
                 }
 
@@ -224,11 +234,14 @@ class DragViewLayout @JvmOverloads constructor(
     private var currentPosition = 0
 
     override fun onPageScrollStateChanged(state: Int) {
-        if (state== ViewPager.SCROLL_STATE_IDLE) {
-            if (currentPosition + 1 == dragViewPager.adapter?.count) {
-                DataManager.getInstance(context).loadNextData()
-            } else if (currentPosition == 0) {
-                DataManager.getInstance(context).loadPreData()
+        Log.e("test","onPageScrollStateChanged  enableNotify->$enableNotify")
+        if (enableNotify) {
+            if (state == ViewPager.SCROLL_STATE_IDLE) {
+                if (currentPosition + 1 == dragViewPager.adapter?.count) {
+                    DataManager.getInstance().loadNextData()
+                } else if (currentPosition == 0) {
+                    DataManager.getInstance().loadPreData()
+                }
             }
         }
     }
@@ -239,7 +252,9 @@ class DragViewLayout @JvmOverloads constructor(
     override fun onPageSelected(position: Int) {
         currentPosition = position
         listener?.onPageSelected(currentPosition)
-//        leftTextView.text = "${currentPosition + 1}/${dragViewPager.adapter?.count}"
+        if (enableNotify) {
+            leftTextView.text = "${currentPosition + 1}/${dragViewPager.adapter?.count}"
+        }
     }
 
 

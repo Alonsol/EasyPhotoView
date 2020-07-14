@@ -15,3 +15,8 @@ const val CURRENT_POSITION = "position"
  * 控件位置信息
  */
 const val LOCATION_INFO = "location_info"
+
+/**
+ * 数据加载监听
+ */
+const val ENABLE_LOAD_NOTIFY = "load_notify"
