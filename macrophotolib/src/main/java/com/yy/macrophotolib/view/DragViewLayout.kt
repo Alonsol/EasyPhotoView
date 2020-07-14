@@ -235,7 +235,7 @@ class DragViewLayout @JvmOverloads constructor(
 
     override fun onPageScrollStateChanged(state: Int) {
         Log.e("test","onPageScrollStateChanged  enableNotify->$enableNotify")
-        if (enableNotify) {
+        if (!enableNotify) {
             if (state == ViewPager.SCROLL_STATE_IDLE) {
                 if (currentPosition + 1 == dragViewPager.adapter?.count) {
                     DataManager.getInstance().loadNextData()

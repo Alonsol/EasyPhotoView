@@ -87,7 +87,7 @@ class EasyPhotoHelper(private val activity: Activity) {
         val intent = Intent(activity, ImagePreviewActivity::class.java)
         intent.putExtra(IMAGE_INFO, imageInfo)
         intent.putExtra(CURRENT_POSITION, currentPosition)
-        intent.putExtra(ENABLE_LOAD_NOTIFY, listener != null)
+        intent.putExtra(ENABLE_LOAD_NOTIFY, listener == null)
         intent.putParcelableArrayListExtra(LOCATION_INFO, optionEntities)
         activity.startActivity(intent)
         activity.overridePendingTransition(0, 0)
