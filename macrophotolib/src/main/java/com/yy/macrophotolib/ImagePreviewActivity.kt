@@ -11,17 +11,20 @@ import android.view.ViewTreeObserver
 import android.view.WindowManager
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.yy.macrophotolib.adapter.ImagePagerAdapter
 import com.yy.macrophotolib.callback.ILoadDataResultListener
+import com.yy.macrophotolib.callback.OnProcessFinishListener
 import com.yy.macrophotolib.const.CURRENT_POSITION
 import com.yy.macrophotolib.const.ENABLE_LOAD_NOTIFY
 import com.yy.macrophotolib.const.IMAGE_INFO
 import com.yy.macrophotolib.const.LOCATION_INFO
 import com.yy.macrophotolib.entity.ImgOptionEntity
 import com.yy.macrophotolib.manager.DataManager
+import com.yy.macrophotolib.utils.LoadUtils
 import com.yy.macrophotolib.view.DragViewLayout
 import kotlinx.android.synthetic.main.activity_image_preview.*
 
@@ -56,6 +59,8 @@ class ImagePreviewActivity : AppCompatActivity(), DragViewLayout.DragListener,
     private lateinit var colorDrawable: ColorDrawable
 
     private lateinit var datas: ArrayList<ImageInfo>
+
+    private var currentPosition = 0
 
     companion object {
         private const val DURATION = 250L
@@ -130,6 +135,7 @@ class ImagePreviewActivity : AppCompatActivity(), DragViewLayout.DragListener,
     }
 
     override fun onPageSelected(position: Int) {
+        this.currentPosition = position
         if (optionEntities.isNotEmpty()) {
 //            val entity = optionEntities[position]
 //            startY = entity.top
@@ -137,6 +143,17 @@ class ImagePreviewActivity : AppCompatActivity(), DragViewLayout.DragListener,
 //            startWidth = entity.width
 //            startHeight = entity.height
         }
+    }
+
+    override fun onSaveFile() {
+        LoadUtils.saveFile(this, datas[currentPosition].remoteUrl,
+            OnProcessFinishListener { success ->
+                if (success) {
+                    Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "保存失败", Toast.LENGTH_SHORT).show()
+                }
+            })
     }
 
     override fun onBackPressed() {

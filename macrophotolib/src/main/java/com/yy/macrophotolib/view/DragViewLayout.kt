@@ -8,12 +8,15 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.RelativeLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.customview.widget.ViewDragHelper
 import androidx.viewpager.widget.ViewPager
 import com.yy.macrophotolib.R
+import com.yy.macrophotolib.callback.OnProcessFinishListener
 import com.yy.macrophotolib.manager.DataManager
+import com.yy.macrophotolib.utils.LoadUtils
 import com.yy.macrophotolib.utils.ScreenUtils
 import kotlin.math.abs
 
@@ -79,7 +82,7 @@ class DragViewLayout @JvmOverloads constructor(
         addView(rightTextView)
 
         rightTextView.setOnClickListener {
-
+            listener?.onSaveFile()
         }
     }
 
@@ -229,6 +232,7 @@ class DragViewLayout @JvmOverloads constructor(
     interface DragListener {
         fun onDragFinished()
         fun onPageSelected(position: Int)
+        fun onSaveFile()
     }
 
     private var currentPosition = 0
